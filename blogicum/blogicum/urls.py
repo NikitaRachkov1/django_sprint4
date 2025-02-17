@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from pages.views import page_not_found, internal_server_error, forbidden 
+from pages.views import page_not_found, internal_server_error, forbidden
 from blog.views import RegisterView
 
 urlpatterns = [

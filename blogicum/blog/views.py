@@ -7,7 +7,8 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 from django.views import View
 
-from .forms import CommentForm, CustomUserCreationForm, PostForm, ProfileEditForm
+from .forms import (CommentForm, CustomUserCreationForm,
+                    PostForm, ProfileEditForm)
 from .models import Post, Category, Comment
 
 POSTS_LIMIT = 10
@@ -166,7 +167,7 @@ def index(request):
 
     paginator = Paginator(posts, POSTS_LIMIT)
     page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)    
+    page_obj = paginator.get_page(page_number)
 
     return render(
         request,
