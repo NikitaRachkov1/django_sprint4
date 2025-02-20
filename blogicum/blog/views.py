@@ -4,11 +4,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import redirect, render, get_object_or_404
-from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
 
-from .forms import CommentForm, CustomUserCreationForm, PostForm, ProfileEditForm
+from .forms import (CommentForm, CustomUserCreationForm,
+                    PostForm, ProfileEditForm)
 from .models import Post, Category, Comment
 
 POSTS_LIMIT = 10
@@ -169,7 +169,7 @@ def index(request):
 
     paginator = Paginator(posts, POSTS_LIMIT)
     page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)    
+    page_obj = paginator.get_page(page_number)
 
     return render(
         request,
@@ -182,15 +182,16 @@ def index(request):
 
 
 def post_detail(request, post_id):
-    post = get_object_or_404(
-        Post,
-        id=post_id,
-        is_published=True,
-        pub_date__lte=timezone.now(),
-        category__is_published=True
-    )
+    post = get_object_or_404(Post, id=post_id)
+    if post.author != request.user:
+        post = get_object_or_404(
+            Post,
+            id=post_id,
+            is_published=True,
+            pub_date__lte=timezone.now(),
+            category__is_published=True
+        )
     comments = post.comments.all()
-    print(comments, len(comments))
 
     form = CommentForm()
 
@@ -230,11 +231,8 @@ def profile_edit(request, username):
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
 
-    if not request.user.is_authenticated:
+    if not request.user.is_authenticated or post.author != request.user:
         return redirect('blog:post_detail', post_id=post_id)
-
-    if post.author != request.user:
-        return HttpResponseForbidden('Вы не можете редактировать чужой пост!')
 
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES, instance=post)
