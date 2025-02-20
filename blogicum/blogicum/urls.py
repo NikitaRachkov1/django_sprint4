@@ -3,7 +3,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from pages.views import page_not_found, internal_server_error, forbidden
 from blog.views import RegisterView
 
 urlpatterns = [
@@ -14,9 +13,9 @@ urlpatterns = [
     path('auth/registration/', RegisterView.as_view(), name='registration'),
 ]
 
-handler403 = forbidden
-handler404 = page_not_found
-handler500 = internal_server_error
+handler403 = 'pages.views.forbidden'
+handler404 = 'pages.views.page_not_found'
+handler500 = 'pages.views.internal_server_error'
 
 
 if settings.DEBUG:

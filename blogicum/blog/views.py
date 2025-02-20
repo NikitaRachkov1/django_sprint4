@@ -4,11 +4,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
 
-from .forms import (CommentForm, CustomUserCreationForm,
-                    PostForm, ProfileEditForm)
+from .forms import CommentForm, CustomUserCreationForm, PostForm, ProfileEditForm
 from .models import Post, Category, Comment
 
 POSTS_LIMIT = 10
@@ -41,9 +41,7 @@ class PostCreateView(LoginRequiredMixin, View):
 
 
 class ProfileView(View):
-    def get(self, request, username=None):
-        if not username:
-            username = request.user.username
+    def get(self, request, username):
         user_profile = get_object_or_404(User, username=username)
 
         if request.user == user_profile:
@@ -129,15 +127,19 @@ def comment_edit(request, post_id, comment_id):
 
 @login_required
 def comment_delete(request, post_id, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)
+    comment = get_object_or_404(Comment, id=comment_id, post_id=post_id)
 
     if comment.author != request.user:
         return HttpResponseForbidden('Вы не можете удалять чужой коммент!')
 
-    comment.delete()
-    return redirect(
-        'blog:post_detail',
-        post_id=post_id,
+    if request.method == 'POST':
+        comment.delete()
+        return redirect('blog:post_detail', post_id=post_id)
+
+    return render(
+        request,
+        'blog/comment.html',
+        {'comment': comment}
     )
 
 
@@ -167,7 +169,7 @@ def index(request):
 
     paginator = Paginator(posts, POSTS_LIMIT)
     page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginator.get_page(page_number)    
 
     return render(
         request,
@@ -205,8 +207,8 @@ def post_detail(request, post_id):
 
 
 @login_required
-def profile_edit(request):
-    user_obj = get_object_or_404(User, username=request.user.username)
+def profile_edit(request, username):
+    user_obj = get_object_or_404(User, username=username)
     if request.method == 'POST':
         form = ProfileEditForm(request.POST, instance=user_obj)
         if form.is_valid():
@@ -225,9 +227,11 @@ def profile_edit(request):
     )
 
 
-@login_required
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
+
+    if not request.user.is_authenticated:
+        return redirect('blog:post_detail', post_id=post_id)
 
     if post.author != request.user:
         return HttpResponseForbidden('Вы не можете редактировать чужой пост!')

@@ -1,12 +1,15 @@
 from django.shortcuts import render
+from django.views.generic import TemplateView
 
 
-def about(request):
-    return render(
-        request,
-        'pages/about.html',
-        context={'title': 'О проекте'},
-    )
+class AboutView(TemplateView):
+    template_name = 'pages/about.html'
+    extra_context = {'title': 'О проекте'}
+
+
+class RulesView(TemplateView):
+    template_name = 'pages/rules.html'
+    extra_context = {'title': 'Наши правила'}
 
 
 def forbidden(request, exception):
@@ -30,12 +33,4 @@ def page_not_found(request, exception):
         request,
         'pages/404.html',
         status=404,
-    )
-
-
-def rules(request):
-    return render(
-        request,
-        'pages/rules.html',
-        context={'title': 'Наши правила'},
     )
