@@ -8,7 +8,7 @@ from .models import Comment, Post
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['text']
+        fields = ('text',)
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -20,12 +20,19 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class PostForm(forms.ModelForm):
+    pub_date = forms.DateTimeField(
+        widget=forms.DateTimeInput(
+            attrs={
+                'type': 'datetime-local'
+            },
+            format='%Y-%m-%dT%H:%M'
+        ),
+        input_formats=['%Y-%m-%dT%H:%M']
+    )
+
     class Meta:
         model = Post
         fields = ('title', 'text', 'category', 'location', 'pub_date', 'image')
-        widgets = {
-            'pub_date': forms.DateTimeInput(attrs={'type': 'datetime-local'})
-        }
 
 
 class ProfileEditForm(forms.ModelForm):

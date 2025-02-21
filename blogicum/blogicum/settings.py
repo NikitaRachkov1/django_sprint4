@@ -12,11 +12,6 @@ STATICFILES_DIRS = [
 
 SECRET_KEY = 'django-insecure-4xfnewjq(yyh9epsfthzwu8ky)*-d#*!dt_l==4bj8!0+=mp4n'
 
-# для ревьюера
-# DEBUG = False
-
-# ALLOWED_HOSTS = ['*']
-
 DEBUG = True
 
 ALLOWED_HOSTS = []

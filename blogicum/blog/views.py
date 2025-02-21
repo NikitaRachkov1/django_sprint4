@@ -49,9 +49,7 @@ class ProfileView(View):
         else:
             posts = user_profile.posts.filter(pub_date__lte=timezone.now())
 
-        paginator = Paginator(posts, POSTS_LIMIT)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+        page_obj = paginate(request, posts)
 
         return render(
             request,
@@ -150,9 +148,7 @@ def category_posts(request, category_slug):
 
     posts_in_category = Post.objects.published().filter(category=category)
 
-    paginator = Paginator(posts_in_category, POSTS_LIMIT)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginate(request, posts_in_category)
 
     return render(
         request,
@@ -164,12 +160,17 @@ def category_posts(request, category_slug):
     )
 
 
+def paginate(request, queryset, limit=POSTS_LIMIT):
+    paginator = Paginator(queryset, limit)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return page_obj
+
+
 def index(request):
     posts = Post.objects.published()
 
-    paginator = Paginator(posts, POSTS_LIMIT)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginate(request, posts)
 
     return render(
         request,
