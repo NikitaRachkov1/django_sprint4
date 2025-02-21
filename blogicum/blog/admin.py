@@ -9,6 +9,12 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description')
 
 
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('post', 'author', 'text', 'created_at')
+    search_fields = ('post', 'author')
+
+
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_published', 'created_at')
